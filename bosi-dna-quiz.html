@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOSI DNA Assessment | @pun_nattapatch</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #sec-result, #sec-result * { visibility: visible; }
+      #sec-result { position: absolute; top: 0; left: 0; width: 100%; }
+      .topbar, #btn-reset, .save-btn-group, .cta-box { display: none !important; }
+      .container { padding: 0 !important; max-width: 100% !important; }
+    }
+    :root {
+      --navy: #072b4e;
+      --coral: #dd4155;
+      --lgray: #f5f5f5;
+      --dgray: #444444;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Sukhumvit Set", "Leelawadee UI", "Sarabun", sans-serif;
+      background: #f0f2f5;
+      color: var(--dgray);
+      min-height: 100vh;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--navy);
+      color: white;
+      text-align: center;
+      padding: 14px 20px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+    .topbar span { color: var(--coral); font-weight: bold; }
+
+    /* ─── CONTAINER ─── */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* ─── SECTIONS ─── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ─── INTRO ─── */
+    .hero {
+      background: var(--navy);
+      border-radius: 16px;
+      padding: 40px 32px;
+      text-align: center;
+      color: white;
+      margin-bottom: 24px;
+    }
+    .hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+    .hero p { font-size: 15px; opacity: 0.8; line-height: 1.6; }
+    .hero .badge {
+      display: inline-block;
+      background: var(--coral);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .info-card h3 {
+      font-size: 15px;
+      color: var(--navy);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--dgray);
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--coral);
+    }
+
+    /* ─── PROGRESS ─── */
+    .progress-bar-wrap {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--navy);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .progress-track {
+      background: var(--lgray);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--navy), var(--coral));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* ─── QUESTION CARD ─── */
+    .q-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      transition: box-shadow 0.2s;
+    }
+    .q-card.answered { border-left: 4px solid var(--coral); }
+    .q-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--coral);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .q-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    /* ─── CHOICES ─── */
+    .choices { display: flex; flex-direction: column; gap: 10px; }
+    .choice-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border: 1.5px solid #e8e8e8;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+    }
+    .choice-label:hover { border-color: var(--coral); background: #fff5f6; }
+    .choice-label input[type="radio"] { display: none; }
+    .choice-label.selected {
+      border-color: var(--coral);
+      background: #fff0f2;
+    }
+    .choice-key {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      background: var(--lgray);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-top: 1px;
+    }
+    .choice-label.selected .choice-key {
+      background: var(--coral);
+      color: white;
+    }
+    .choice-text { font-size: 14px; line-height: 1.5; color: var(--dgray); }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--coral);
+      color: white;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { background: #c4384a; transform: translateY(-1px); }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    .btn-navy {
+      background: var(--navy);
+      color: white;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn-navy:hover { background: #0a3a65; }
+
+    /* ─── RESULT ─── */
+    .result-hero {
+      background: linear-gradient(145deg, #0a1e32 0%, #163a5e 60%, #1a4570 100%);
+      border-radius: 16px;
+      padding: 36px 28px;
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+    .result-hero h2 { font-size: 16px; opacity: 0.7; margin-bottom: 8px; }
+    .dna-badge {
+      font-size: 64px;
+      font-weight: 900;
+      color: var(--coral);
+      line-height: 1;
+      margin: 12px 0;
+    }
+    .dna-name { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .dna-name-th { font-size: 16px; opacity: 0.8; }
+
+    /* ─── TIE STATE ─── */
+    .tie-badges {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+    .tie-badge-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .tie-badge-letter {
+      font-size: 54px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .tie-badge-label { font-size: 12px; opacity: 0.75; font-weight: 600; }
+    .tie-plus { font-size: 32px; font-weight: 300; opacity: 0.5; margin: 0 4px; }
+    .tie-subtitle { font-size: 14px; opacity: 0.7; margin-top: 4px; }
+
+    /* ─── PROFILE CARD (Tie) ─── */
+    .dna-profile-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      color: white;
+    }
+    .profile-header-B { background: #072b4e; }
+    .profile-header-O { background: #dd4155; }
+    .profile-header-S { background: #2e86ab; }
+    .profile-header-I { background: #a23b72; }
+    .profile-header-letter {
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1;
+      opacity: 0.9;
+    }
+    .profile-header-text { text-align: left; }
+    .profile-header-name { font-size: 16px; font-weight: 700; }
+    .profile-header-th { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+    .profile-body { padding: 20px; }
+
+    /* ─── SCORE BARS ─── */
+    .score-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .score-card h3 {
+      font-size: 15px;
+      color: var(--navy);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .score-row { margin-bottom: 14px; }
+    .score-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .score-track {
+      background: var(--lgray);
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.8s ease;
+    }
+    .fill-B { background: #072b4e; }
+    .fill-O { background: #dd4155; }
+    .fill-S { background: #2e86ab; }
+    .fill-I { background: #a23b72; }
+
+    /* ─── DNA DESCRIPTION ─── */
+    .desc-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .desc-card h3 {
+      font-size: 15px;
+      color: var(--navy);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .desc-card p { font-size: 14px; line-height: 1.8; color: var(--dgray); }
+    .trait-list { list-style: none; margin-top: 12px; }
+    .trait-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .trait-list li:last-child { border: none; }
+    .trait-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--coral);
+      flex-shrink: 0;
+    }
+
+    /* ─── CTA BOX ─── */
+    .cta-box {
+      background: var(--navy);
+      border-radius: 12px;
+      padding: 28px 24px;
+      text-align: center;
+      color: white;
+      margin-top: 24px;
+    }
+    .cta-box p { font-size: 14px; opacity: 0.8; margin-bottom: 10px; }
+    .cta-box .cta-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .cta-box .handle { color: var(--coral); font-weight: 700; font-size: 16px; }
+
+    /* ─── SAVE STATUS ─── */
+    .save-status {
+      text-align: center;
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .save-status.success { background: #e8f5e9; color: #2e7d32; }
+    .save-status.error { background: #ffebee; color: #c62828; }
+    .save-status.loading { background: #fff3e0; color: #e65100; }
+
+    /* ─── ANSWER REVIEW ─── */
+    .review-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      font-size: 13px;
+    }
+    .review-q { color: var(--navy); font-weight: 700; margin-bottom: 6px; }
+    .review-ans { color: var(--dgray); }
+    .review-type {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .type-B { background: #e8eef4; color: #072b4e; }
+    .type-O { background: #fdecea; color: #dd4155; }
+    .type-S { background: #e3f2fd; color: #2e86ab; }
+    .type-I { background: #f3e5f5; color: #a23b72; }
+    .type-none { background: #f5f5f5; color: #888; }
+
+    /* ─── DETAIL SECTIONS ─── */
+    .detail-section { margin-top: 18px; }
+    .detail-section h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--coral);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+    }
+    .role-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .role-tag {
+      background: var(--lgray);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid #e0e0e0;
+    }
+    .blind-list { list-style: none; margin-top: 2px; }
+    .blind-list li {
+      padding: 7px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 13px;
+      color: var(--dgray);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .blind-list li:last-child { border: none; }
+    .blind-dot {
+      flex-shrink: 0;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--coral);
+      margin-top: 6px;
+    }
+    .divider { border: none; border-top: 1px solid #f0f0f0; margin: 16px 0; }
+
+    /* ─── SAVE BUTTON GROUP ─── */
+    .save-btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .btn-save {
+      flex: 1;
+      padding: 13px 16px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: var(--navy);
+      color: white;
+      transition: all 0.2s;
+    }
+    .btn-save:hover { background: #0a3a65; transform: translateY(-1px); }
+    .btn-save-img { background: #2e86ab; }
+    .btn-save-img:hover { background: #256f8f; }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 22px; }
+      .dna-badge { font-size: 52px; }
+      .save-btn-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  ปัน ณัฐพัชร์ &nbsp;|&nbsp; <span>@pun_nattapatch</span> &nbsp;|&nbsp; Digital B2B & Sale Expert
+</div>
+
+<div class="container">
+
+  <!-- ══════════════════════════════════════
+       SECTION 1: INTRO
+  ══════════════════════════════════════ -->
+  <div id="sec-intro" class="section active">
+    <div class="hero">
+      <div class="badge">Employee Edition</div>
+      <h1>ค้นหา BOSI DNA ในตัวคุณ</h1>
+      <p>แบบทดสอบ 10 ข้อ เพื่อค้นหาแนวคิดและพฤติกรรมธุรกิจที่แท้จริงของคุณ<br>ใช้เวลาประมาณ 5-10 นาที</p>
+    </div>
+
+    <div class="info-card">
+      <h3>กรอกข้อมูลของคุณก่อนเริ่มทดสอบ</h3>
+      <div class="form-group">
+        <label>ชื่อ-นามสกุล <span style="color:var(--coral)">*</span></label>
+        <input type="text" id="input-name" placeholder="เช่น สมชาย ใจดี" />
+      </div>
+      <div class="form-group">
+        <label>ตำแหน่งงาน</label>
+        <input type="text" id="input-role" placeholder="เช่น Sale Engineer, ผู้จัดการฝ่ายขาย" />
+      </div>
+      <div class="form-group">
+        <label>บริษัท / องค์กร</label>
+        <input type="text" id="input-company" placeholder="ชื่อบริษัท" />
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">เริ่มทำแบบทดสอบ →</button>
+    </div>
+
+    <div style="text-align:center; font-size:12px; color:#888; margin-top:8px;">
+      แปลจาก Abraham, J. 2011. Entrepreneurial DNA | bosidna.com
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 2: QUIZ
+  ══════════════════════════════════════ -->
+  <div id="sec-quiz" class="section">
+    <div class="progress-bar-wrap">
+      <div class="progress-info">
+        <span id="progress-text">ตอบแล้ว 0 / 10 ข้อ</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="questions-container"></div>
+
+    <button class="btn btn-primary" id="btn-submit" onclick="submitQuiz()" disabled>
+      ดูผลลัพธ์ BOSI DNA ของฉัน →
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 3: RESULT
+  ══════════════════════════════════════ -->
+  <div id="sec-result" class="section">
+    <div class="result-hero">
+      <h2 id="result-hero-title">BOSI DNA ของคุณคือ</h2>
+      <div id="result-hero-content"></div>
+    </div>
+
+    <div class="score-card">
+      <h3>คะแนนแต่ละ DNA</h3>
+      <div class="score-row">
+        <div class="score-label">
+          <span>B — Builder (ผู้สร้าง)</span>
+          <span id="score-B">0 คะแนน</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill fill-B" id="bar-B" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-label">
+          <span>O — Opportunist (นักโอกาส)</span>
+          <span id="score-O">0 คะแนน</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill fill-O" id="bar-O" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-label">
+          <span>S — Specialist (ผู้เชี่ยวชาญ)</span>
+          <span id="score-S">0 คะแนน</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill fill-S" id="bar-S" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-label">
+          <span>I — Innovator (นักคิดค้น)</span>
+          <span id="score-I">0 คะแนน</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill fill-I" id="bar-I" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-desc"></div>
+
+    <div class="score-card">
+      <h3>สรุปคำตอบของคุณ</h3>
+      <div id="answer-review"></div>
+    </div>
+
+    <div class="save-btn-group">
+      <button class="btn btn-save" onclick="saveAsPDF()">📄 บันทึกเป็น PDF</button>
+      <button class="btn btn-save btn-save-img" onclick="saveAsImage()">🖼 บันทึกเป็นรูปภาพ</button>
+    </div>
+
+    <button class="btn btn-primary" id="btn-reset" onclick="resetQuiz()" style="margin-top:12px;">
+      ทำแบบทดสอบใหม่
+    </button>
+
+    <div class="cta-box">
+      <p class="cta-title">อยากนำ BOSI DNA ไปต่อยอดพัฒนาทีมขายของธุรกิจคุณไหม?</p>
+      <p>สวัสดีครับ ผม ปัน ณัฐพัชร์ Digital B2B Sale & AI Expert<br>ผมพร้อมช่วยธุรกิจของคุณออกแบบระบบทีมขายที่เหมาะกับ DNA ของแต่ละคน<br>คลิ๊กที่ลิ้งนี้เลย</p>
+      <a href="https://www.openlink.co/pun_nattapatch" target="_blank" rel="noopener" style="display:inline-block;margin-top:14px;padding:12px 28px;background:var(--coral);color:white;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;font-family:inherit;">
+        @pun_nattapatch →
+      </a>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG — ใส่ Google Apps Script Web App URL ของคุณ
+// ═══════════════════════════════════════════════════
+const SHEETS_URL = ""; // วาง URL ของ Google Apps Script Web App ที่นี่
+
+// ═══════════════════════════════════════════════════
+//  DATA: QUESTIONS
+// ═══════════════════════════════════════════════════
+const QUESTIONS = [
+  {
+    num: 1,
+    text: "ประวัติการทำงานเป็นลูกจ้างของข้าพเจ้า",
+    choices: [
+      { key: "ก", text: "ตำแหน่งผู้บริหารระดับสูงในหลายกิจการมาแล้ว" },
+      { key: "ข", text: "ข้าพเจ้าถูกว่าจ้างในงานที่เชี่ยวชาญเฉพาะทาง ซึ่งมาจากการศึกษาในสถาบันเฉพาะทาง หรือประสบการณ์ที่ผ่านมา หรือมีใบรับรองความเชี่ยวชาญเฉพาะทาง หรือมีใบอนุญาตประกอบอาชีพเฉพาะทาง" },
+      { key: "ค", text: "ข้าพเจ้ามีส่วนช่วยแสวงหาโอกาสทางธุรกิจให้มีรายได้มากขึ้น" },
+      { key: "ง", text: "ข้าพเจ้ามีประวัติในการช่วยพัฒนาสินค้าหรือบริการหลายอย่างให้ผู้ว่าจ้าง" }
+    ]
+  },
+  {
+    num: 2,
+    text: "วันในอุดมคติของข้าพเจ้าจะใช้ในกิจกรรมใด",
+    choices: [
+      { key: "ก", text: "วันที่ข้าพเจ้าอยู่ในพื้นที่ปฏิบัติการมากกว่าในสำนักงานหรือในฝ่ายขาย" },
+      { key: "ข", text: "ขับเคลื่อนกลยุทธ์ธุรกิจเข้าสู่กิจการเพื่อแก้ปัญหาทางธุรกิจที่เผชิญอยู่" },
+      { key: "ค", text: "คร่ำเคร่งกับการบริหารจัดการด้วยความชำนาญของข้าพเจ้าในงานสำคัญๆ ของแต่ละวัน" },
+      { key: "ง", text: "ขณะกำลังหารายได้จำนวนมากให้ตนเองในการเจรจากิจกรรมทางธุรกิจ ซึ่งนอกเหนือจากงานในหน้าที่" }
+    ]
+  },
+  {
+    num: 3,
+    text: '"ถ้อยคำ" ใดที่อธิบายท่านได้ชัดเจนที่สุด',
+    choices: [
+      { key: "ก", text: "ผู้ส่งเสริม / สนับสนุน (Promoter)" },
+      { key: "ข", text: "ผู้นำ (Leader)" },
+      { key: "ค", text: "ผู้เชี่ยวชาญ (Expert)" },
+      { key: "ง", text: "นักประดิษฐ์ / คิดค้น (Inventor)" }
+    ]
+  },
+  {
+    num: 4,
+    text: "ท่านอยากให้ผู้อื่น กล่าวถึงข้าพเจ้าในด้านใด",
+    choices: [
+      { key: "ก", text: "ข้าพเจ้าทำได้ดี ในงานสำคัญๆ ที่ได้รับมอบหมาย" },
+      { key: "ข", text: "ความคิดของข้าพเจ้า มีบทบาทต่อกิจการและลูกค้า" },
+      { key: "ค", text: "ข้าพเจ้าทำได้ดีในการบริหารกำไร/ขาดทุนและนำทีมงาน" },
+      { key: "ง", text: "ข้าพเจ้าได้ขับเคลื่อนธุรกิจใหม่ๆ จำนวนมากเข้าสู่บริษัท" }
+    ]
+  },
+  {
+    num: 5,
+    text: 'ข้อความที่เกี่ยวกับ "คน" ต่อไปนี้ ข้อใดที่ทำให้ท่านหัวเสียมากสุด',
+    choices: [
+      { key: "ก", text: "ผู้ซื้อที่เชื่องช้า หรือ ไม่ใส่ใจขั้นตอนการขายของฉันเลย" },
+      { key: "ข", text: "ยืนหยัดยึดมั่นในตนเองสูง และไม่ฟังไม่แคร์ข้อทักท้วงใดๆ" },
+      { key: "ค", text: "ผู้จัดการที่สนใจการทำกำไรมากกว่าคุณภาพผลิตภัณฑ์" },
+      { key: "ง", text: "สมาชิกในกลุ่มที่ไม่ปฏิบัติตามคำสั่งที่ข้าพเจ้าสั่งการ" }
+    ]
+  },
+  {
+    num: 6,
+    text: "ท่านเหมาะสมกับสภาพแวดล้อมทางธุรกิจใดมากสุด",
+    choices: [
+      { key: "ก", text: "วางแผนงานและนำเสนอผลิตภัณฑ์ใหม่ของแผนกหรือของบริษัท" },
+      { key: "ข", text: "นำพาผลิตภัณฑ์ออกสู่ตลาดในเวลาและสถานที่อย่างถูกต้องเหมาะสม" },
+      { key: "ค", text: "ข้าพเจ้าทำงานได้ดีภายใต้สภาพแวดล้อมที่องค์กรมั่นคงและปลอดภัยแล้ว" },
+      { key: "ง", text: "ข้าพเจ้าสร้างสรรค์งานได้มากมาย ภายใต้สภาวะที่เป็นอิสระในการออกแบบและพัฒนาผลิตภัณฑ์ โดยปราศจากข้อจำกัดด้านงบประมาณและเวลา" }
+    ]
+  },
+  {
+    num: 7,
+    text: '"จุดแข็ง" ของท่านเป็นข้อใด',
+    choices: [
+      { key: "ก", text: "บริหาร / จัดการ (Execution) — ให้ทุกๆ กิจกรรมเกิดขึ้นอย่างราบรื่นในแต่ละวัน" },
+      { key: "ข", text: "การเป็นผู้นำ (Leadership) — จัดการเรื่องหนักๆ ที่เกี่ยวข้องกับคน" },
+      { key: "ค", text: "ส่งเสริม (Promotion) — กระตุ้น ปลุกพลัง ให้ความหวังกับทีมงานของบริษัท" },
+      { key: "ง", text: "คิดค้น / ปรับเปลี่ยน (Innovation) — ออกแบบงานเพื่อปลดล็อกปัญหาต่างๆ เกี่ยวกับสินค้าและบริการ" }
+    ]
+  },
+  {
+    num: 8,
+    text: '"แผนการจ่ายค่าตอบแทน" ตามทัศนะของท่าน ควรคิดให้ครอบคลุมเรื่อง ดังนี้',
+    choices: [
+      { key: "ก", text: "ฐานเงินเดือน บวกเพิ่ม เปอร์เซ็นต์ของกำไรในผลิตภัณฑ์ที่ข้าพเจ้าสร้างสรรค์" },
+      { key: "ข", text: "ไม่มีการจำกัดฐานรายได้ ทั้งนี้ รายได้อยู่บนความสามารถของข้าพเจ้าในการสร้างรายได้ใหม่ให้กิจการ" },
+      { key: "ค", text: "ฐานเงินเดือน บวกเพิ่ม โบนัส ในส่วนที่ข้าพเจ้ามีผลปฏิบัติงานได้ดี" },
+      { key: "ง", text: "ฐานเงินเดือน บวกเพิ่ม โบนัส ในส่วนที่ข้าพเจ้าบริหารทีมงานได้ดี และบริหารกำไร/ขาดทุนได้ดีด้วย" }
+    ]
+  },
+  {
+    num: 9,
+    text: "ข้อความใดอธิบายตัวตนท่านได้ชัดเจนที่สุด",
+    choices: [
+      { key: "ก", text: "เมื่อสมัครผ่านบริษัทหางาน มันยากมากที่เราจะโดดเด่นเหนือคนอื่นๆ ที่ใบสมัครโชว์คุณสมบัติเป็นเลิศและมีประสบการณ์น่าเชื่อถือ" },
+      { key: "ข", text: "ข้าพเจ้าชื่นชมกับทุกคนที่มีพรสวรรค์ด้านการบริหารจัดการ การลงมือปฏิบัติการ การชำนาญงานด้านการขาย และข้าพเจ้าอยากจะมีพื้นฐานในเรื่องนี้" },
+      { key: "ค", text: "ลูกจ้างทุกคนมีความสำคัญ แต่ก็สามารถหาใหม่มาทดแทนได้ ข้าพเจ้าไม่เสียอารมณ์กับเรื่องเหล่านี้" },
+      { key: "ง", text: "ข้าพเจ้าคิดบวกและมองโลกในแง่ดีมากๆ ข้าพเจ้าไม่ใช่คนที่ \"น้ำเต็มแก้ว\" แต่สำหรับข้าพเจ้าแล้วแก้วมีน้ำเพียงครึ่งหนึ่งเสมอ" }
+    ]
+  },
+  {
+    num: 10,
+    text: "ข้อความใดที่ยังสามารถอธิบายท่านได้เช่นกัน",
+    choices: [
+      { key: "ก", text: "ฉันชอบอยู่ในภาวะถูกที่และถูกเวลา ซึ่งเป็นช่วงเวลาที่กำลังสร้างรายได้มาก เท่าที่จะทำได้" },
+      { key: "ข", text: "ฉันมักจะเป็นนักวิเคราะห์และค้นหาวิธีการที่ใช้เพื่อการตัดสินใจ" },
+      { key: "ค", text: "ความสนุกสนานอย่างยิ่งของข้าพเจ้าในธุรกิจ เกิดขึ้นเมื่อข้าพเจ้าได้เห็นบางสิ่งบางอย่างที่ข้าพเจ้าสร้างสรรค์ขึ้นมา ได้ส่งผลดีต่อกิจการและลูกค้าของเรา" },
+      { key: "ง", text: "เมื่อฉันคิดถึงอาชีพการเป็นผู้บริหารในอดีตของข้าพเจ้า พบว่า มีการปรับเปลี่ยนหมุนเวียนทีมงานของข้าพเจ้าสูงมาก ทั้งนี้ เพราะพวกเขาไม่สามารถปฏิบัติการตามที่ข้าพเจ้าคาดหวังไว้ได้" }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════
+//  ANSWER KEY
+//  [ก, ข, ค, ง]  null = ไม่นับคะแนน
+// ═══════════════════════════════════════════════════
+const ANSWER_KEY = [
+  ['B', null, 'O', 'S'],   // Q1
+  ['I',  'B', 'S', 'O'],   // Q2
+  ['O',  'B', 'S', 'I'],   // Q3
+  ['S',  'O', 'B', 'I'],   // Q4
+  ['O',  'I', 'S', 'B'],   // Q5
+  ['O',  'B', 'S', 'I'],   // Q6
+  ['S',  'B', 'O', 'I'],   // Q7
+  ['I',  'O', 'S', 'B'],   // Q8
+  ['S',  'I', 'B', 'O'],   // Q9
+  ['O',  'S', 'I', 'B'],   // Q10
+];
+
+// ═══════════════════════════════════════════════════
+//  DNA PROFILES
+// ═══════════════════════════════════════════════════
+const DNA_PROFILES = {
+  B: {
+    name: "Builder",
+    nameTh: "ผู้สร้าง — สถาปนิกแห่งการขยายตัว",
+    desc: "คุณคือสถาปนิกที่มองธุรกิจเป็นโครงสร้างที่ต้องพัฒนาให้ทำงานได้อย่างอัตโนมัติและยั่งยืน คุณไม่ได้มองธุรกิจเป็นแค่ช่องทางทำเงิน แต่เป็นระบบที่ต้องขยายและสร้างผลลัพธ์วัดได้",
+    traits: [
+      "มุ่งเน้นผลลัพธ์ ชอบวัดความสำเร็จด้วยตัวเลขและ KPI",
+      "ดึงดูดทรัพยากร เงินทุน และคนเก่งเข้ามาร่วมทีมได้ง่าย",
+      "สร้างกระบวนการและ SOP ที่ใช้ซ้ำได้และขยายขนาดได้",
+      "ชอบความท้าทายและสภาพแวดล้อมที่ต้องการการเติบโตอยู่เสมอ",
+      "บริหารจัดการกำไร/ขาดทุนได้อย่างเป็นระบบ"
+    ],
+    roles: ["CEO / Managing Director", "COO / Operations Director", "General Manager", "Franchise Developer", "M&A Specialist", "Business Architect"],
+    environment: "สภาพแวดล้อมที่ต้องการการขยายตัว มีตัวชี้วัดชัดเจน และมีอำนาจตัดสินใจในระดับกลยุทธ์",
+    blindspots: [
+      "อารมณ์รุนแรงและคาดเดาได้ยาก อาจทำให้พนักงานระดับสูงลาออก (High Turnover)",
+      "มักมองพนักงานเป็น 'ทรัพยากร' มากกว่าบุคคลที่มีความรู้สึก",
+      "ความใจร้อนและต้องการควบคุมทุกอย่างอาจทำให้ความสัมพันธ์ในทีมแตกร้าว",
+      "เบื่อหน่ายงานซ้ำๆ (Mundane Tasks) อาจทำให้ละเลยรายละเอียดสำคัญ"
+    ]
+  },
+  O: {
+    name: "Opportunist",
+    nameTh: "นักโอกาส — นักล่าโอกาสทางการเงิน",
+    desc: "คุณคือ Rainmaker ผู้มีสัญชาตญาณในการมองเห็น Market Gap และโอกาสที่คนอื่นมองข้าม คุณขับเคลื่อนด้วยแรงจูงใจจากผลตอบแทนสูงสุดและความมั่งคั่งที่สร้างได้อย่างรวดเร็ว",
+    traits: [
+      "มองโลกในแง่ดีสูงมาก (Optimistic) — เป็นพลังงานสำคัญในการขับเคลื่อนธุรกิจ",
+      "เก่งด้านการสร้างความสัมพันธ์เบื้องต้นและ Networking",
+      "เจรจาต่อรองและปิดดีลสำคัญได้อย่างยอดเยี่ยม",
+      "ปรับตัวได้รวดเร็ว ไม่ผูกติดกับอุตสาหกรรมใดอุตสาหกรรมหนึ่ง",
+      "มีแรงจูงใจจาก Upside ที่ไม่มีเพดาน"
+    ],
+    roles: ["VP of Sales", "Business Development Manager", "Head of Partnership", "Growth Hacker", "Lead Generation Specialist", "Fundraising Lead", "Real Estate Investor"],
+    environment: "สภาพแวดล้อมที่มีความยืดหยุ่นสูง มีผลตอบแทนตามผลงาน และไม่มีเพดานรายได้",
+    blindspots: [
+      "ตัดสินใจตามอารมณ์ (Impulsive) อาจนำไปสู่ความเสี่ยงทางการเงินที่รุนแรง",
+      "ปัญหา Follow-through — เริ่มเก่งแต่ติดตามงานระยะยาวไม่ค่อยดี",
+      "เปลี่ยนทิศทางบ่อยเกินไปจนทำให้ทีมปรับตัวไม่ทัน (Whiplash Effect)",
+      "รายได้ผันผวนสูง มีทั้งขึ้นและลงอย่างสุดขั้ว"
+    ]
+  },
+  S: {
+    name: "Specialist",
+    nameTh: "ผู้เชี่ยวชาญ — ผู้เชี่ยวชาญเฉพาะทาง",
+    desc: "คุณคือผู้ที่สั่งสมทักษะและความรู้ในสาขาที่ตัวเองรักอย่างลึกซึ้ง คุณวัดความสำเร็จจากรายได้ส่วนบุคคล ความเชี่ยวชาญ และความพึงพอใจของลูกค้าแบบ Raving Fan",
+    traits: [
+      "มีความเชี่ยวชาญเฉพาะทางในระดับสูงที่คนอื่นเข้ามาทดแทนได้ยาก",
+      "รอบคอบ (Analytical) ให้ความสำคัญกับมาตรฐานและความถูกต้อง",
+      "สร้างความน่าเชื่อถือและ Trust ในระยะยาวได้ดีเยี่ยม",
+      "ทำงานได้ดีในสภาพแวดล้อมที่มีระเบียบและบทบาทชัดเจน",
+      "ลูกค้าและเพื่อนร่วมงานมักพึ่งพาความรู้ของคุณอยู่เสมอ"
+    ],
+    roles: ["CFO / Financial Controller", "Legal Counsel / ทนายความ", "Auditor / Risk Manager", "Senior Technical Consultant", "Data Analyst", "Quality Control Manager", "แพทย์ / เภสัชกร / นักบัญชี (CPA)"],
+    environment: "สภาพแวดล้อมที่มีระเบียบแบบแผน ให้ความสำคัญกับฝีมือ และมีเส้นทางความก้าวหน้าทางวิชาชีพที่ชัดเจน",
+    blindspots: [
+      "ติดกับดัก 'ทำงานในธุรกิจ' (Working In) แทนที่จะ 'ทำงานบนธุรกิจ' (Working On)",
+      "ไม่ชอบการขายเชิงรุก ทำให้มีปัญหาเรื่องการสร้างอุปสงค์ (Demand Generation)",
+      "Analysis Paralysis — ความสมบูรณ์แบบมากเกินไปทำให้ธุรกิจเติบโตช้า",
+      "มักถูก Undervalue เพราะไม่ชอบ Self-promotion"
+    ]
+  },
+  I: {
+    name: "Innovator",
+    nameTh: "นักคิดค้น — นักประดิษฐ์ผู้ทรงพลัง",
+    desc: "คุณไม่ได้สร้างสิ่งใหม่เพราะเงิน แต่เพราะความหลงใหลในการแก้ปัญหาและทิ้งมรดกให้โลก คุณเชื่อมโยงแนวคิดข้ามอุตสาหกรรมและมองเห็นสิ่งที่คนอื่นมองไม่เห็น",
+    traits: [
+      "ขับเคลื่อนด้วย Mission — ต้องการสร้าง Legacy มากกว่าแค่กำไร",
+      "เชื่อมโยงแนวคิดข้ามอุตสาหกรรมได้อย่างสร้างสรรค์",
+      "มองเห็น Unmet Needs ที่คนอื่นยังไม่รู้ว่าต้องการ",
+      "สร้างสรรค์ Solution ใหม่ได้ตลอดเวลา ไม่ติดกรอบเดิม",
+      "มีพลังงานสูงมากเมื่อได้ทำงานในสิ่งที่ตัวเองหลงใหล"
+    ],
+    roles: ["CTO / Chief Technology Officer", "Chief Product Officer", "R&D Director", "Creative Director / Chief Design Officer", "Scenario Planner / Customer Insights Lead", "Startup Founder (ระยะ Early Stage)"],
+    environment: "สภาพแวดล้อมที่อนุญาตให้ทดลอง เข้าถึงข้อมูลผู้ใช้จริงได้ลึก และปราศจากข้อจำกัดที่ฆ่าความคิดสร้างสรรค์",
+    blindspots: [
+      "ขาดทักษะบริหารธุรกิจและการเงิน — ถ้าไม่มี Builder มาช่วยอาจสร้างผลิตภัณฑ์ดีแต่ล้มเหลวเชิงพาณิชย์",
+      "Idea Drift — เปลี่ยนรายละเอียดโครงการไปเรื่อยๆ จนไม่สามารถ Launch ได้จริง",
+      "ไม่ชอบงานบริหารทั่วไป ถ้าถูกบังคับให้จัดการคนจะสูญเสียความคิดสร้างสรรค์",
+      "อาจติดอยู่ใน 'ห้องทดลอง' นานเกินไปโดยไม่สร้างรายได้จริง"
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let userData = {};
+let answers = new Array(10).fill(null); // index 0-9
+
+// ═══════════════════════════════════════════════════
+//  INIT QUIZ
+// ═══════════════════════════════════════════════════
+function startQuiz() {
+  const name = document.getElementById("input-name").value.trim();
+  if (!name) {
+    document.getElementById("input-name").focus();
+    document.getElementById("input-name").style.borderColor = "var(--coral)";
+    return;
+  }
+  userData = {
+    name,
+    role: document.getElementById("input-role").value.trim(),
+    company: document.getElementById("input-company").value.trim(),
+    timestamp: new Date().toISOString()
+  };
+  renderQuestions();
+  showSection("sec-quiz");
+}
+
+function renderQuestions() {
+  const container = document.getElementById("questions-container");
+  container.innerHTML = "";
+  QUESTIONS.forEach((q, idx) => {
+    const card = document.createElement("div");
+    card.className = "q-card";
+    card.id = `q-card-${idx}`;
+    card.innerHTML = `
+      <div class="q-num">ข้อที่ ${q.num}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="choices">
+        ${q.choices.map((c, ci) => `
+          <label class="choice-label" id="choice-${idx}-${ci}" onclick="selectChoice(${idx}, ${ci})">
+            <input type="radio" name="q${idx}" value="${ci}" />
+            <div class="choice-key">${c.key}</div>
+            <div class="choice-text">${c.text}</div>
+          </label>
+        `).join("")}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectChoice(qIdx, choiceIdx) {
+  // Deselect all choices for this question
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById(`choice-${qIdx}-${i}`);
+    if (el) el.classList.remove("selected");
+  }
+  // Select chosen
+  const selected = document.getElementById(`choice-${qIdx}-${choiceIdx}`);
+  if (selected) selected.classList.add("selected");
+  // Mark card answered
+  const card = document.getElementById(`q-card-${qIdx}`);
+  if (card) card.classList.add("answered");
+  // Save answer
+  answers[qIdx] = choiceIdx;
+  updateProgress();
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const pct = Math.round((answered / 10) * 100);
+  document.getElementById("progress-text").textContent = `ตอบแล้ว ${answered} / 10 ข้อ`;
+  document.getElementById("progress-pct").textContent = `${pct}%`;
+  document.getElementById("progress-fill").style.width = `${pct}%`;
+  document.getElementById("btn-submit").disabled = answered < 10;
+}
+
+// ═══════════════════════════════════════════════════
+//  DNA COLOR MAP
+// ═══════════════════════════════════════════════════
+// สีสำหรับ card headers และ type badges
+const DNA_COLORS = { B: "#072b4e", O: "#dd4155", S: "#2e86ab", I: "#a23b72" };
+// สีสำหรับตัวอักษรบนพื้นหลังเข้ม (hero section) —밝고 contrast ดี
+const DNA_HERO_COLORS = { B: "#7ec8f0", O: "#ff8fa3", S: "#64d9f5", I: "#d98fe0" };
+
+// ═══════════════════════════════════════════════════
+//  SCORE & RESULT
+// ═══════════════════════════════════════════════════
+function submitQuiz() {
+  const scores = { B: 0, O: 0, S: 0, I: 0 };
+
+  answers.forEach((choiceIdx, qIdx) => {
+    if (choiceIdx === null) return;
+    const dna = ANSWER_KEY[qIdx][choiceIdx];
+    if (dna) scores[dna]++;
+  });
+
+  // หา maxScore และ DNA ที่ได้คะแนนสูงสุด (อาจมีมากกว่า 1 ตัว)
+  const maxScore = Math.max(...Object.values(scores));
+  const dominants = Object.entries(scores)
+    .filter(([, v]) => v === maxScore)
+    .map(([k]) => k);
+  const isTie = dominants.length > 1;
+
+  // ─── Hero Section ───
+  const heroContent = document.getElementById("result-hero-content");
+  const heroTitle   = document.getElementById("result-hero-title");
+
+  if (!isTie) {
+    const d = dominants[0];
+    heroTitle.textContent = "BOSI DNA ของคุณคือ";
+    heroContent.innerHTML = `
+      <div class="dna-badge">${d}</div>
+      <div class="dna-name">${DNA_PROFILES[d].name}</div>
+      <div class="dna-name-th">${DNA_PROFILES[d].nameTh}</div>
+    `;
+  } else {
+    heroTitle.textContent = "คุณมี DNA ผสม!";
+    const badgesHtml = dominants.map((d, i) => `
+      <div class="tie-badge-item">
+        <div class="tie-badge-letter" style="color:${DNA_HERO_COLORS[d]}">${d}</div>
+        <div class="tie-badge-label">${DNA_PROFILES[d].name}</div>
+      </div>
+      ${i < dominants.length - 1 ? '<div class="tie-plus">+</div>' : ''}
+    `).join("");
+    heroContent.innerHTML = `
+      <div class="tie-badges">${badgesHtml}</div>
+      <div class="tie-subtitle">คะแนนเท่ากัน ${maxScore} คะแนน — คุณมีศักยภาพหลาย DNA</div>
+    `;
+  }
+
+  // ─── Score Bars ───
+  const total = Object.values(scores).reduce((a, b) => a + b, 0) || 1;
+  ['B', 'O', 'S', 'I'].forEach(type => {
+    const el = document.getElementById(`score-${type}`);
+    if (el) el.textContent = `${scores[type]} คะแนน`;
+    setTimeout(() => {
+      const bar = document.getElementById(`bar-${type}`);
+      if (bar) bar.style.width = `${(scores[type] / total) * 100}%`;
+    }, 100);
+  });
+
+  // ─── Profile Description ───
+  document.getElementById("result-desc").innerHTML = isTie
+    ? renderProfileTie(dominants)
+    : renderProfileSingle(dominants[0]);
+
+  // ─── Answer Review ───
+  document.getElementById("answer-review").innerHTML = QUESTIONS.map((q, idx) => {
+    const choiceIdx = answers[idx];
+    const choice = q.choices[choiceIdx];
+    const dna = ANSWER_KEY[idx][choiceIdx];
+    return `
+      <div class="review-card">
+        <div class="review-q">ข้อ ${q.num}: ${q.text}</div>
+        <div class="review-ans">
+          ตอบ: ${choice.key}. ${choice.text.substring(0, 60)}${choice.text.length > 60 ? '...' : ''}
+          <span class="review-type type-${dna || 'none'}">${dna || '—'}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // ─── Store & Save ───
+  userData.scores   = scores;
+  userData.dominant = dominants.join("+");  // เช่น "B+S" หรือ "B"
+  userData.answers  = answers.map((ci, qi) => `${QUESTIONS[qi].choices[ci].key}`).join(",");
+
+  showSection("sec-result");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  silentSaveToSheets();
+}
+
+// ─── Render: Single DNA ───────────────────────────
+function renderProfileSingle(d) {
+  const p = DNA_PROFILES[d];
+  return `
+    <div class="desc-card">
+      <h3>คุณคือ ${d} — ${p.name}</h3>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">${p.nameTh}</p>
+      <p>${p.desc}</p>
+      ${renderProfileBody(p)}
+    </div>
+  `;
+}
+
+// ─── Render: Tie DNAs ────────────────────────────
+function renderProfileTie(dominants) {
+  const note = `
+    <div style="background:#fff9ec;border-left:3px solid #dd4155;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#555;">
+      💡 คุณมี DNA ${dominants.join(" และ ")} ที่แข็งแกร่งเท่ากัน — อ่านรายละเอียดแต่ละ DNA ด้านล่างเพื่อดูว่า DNA ไหนตรงกับตัวคุณมากที่สุด
+    </div>
+  `;
+  const cards = dominants.map(d => {
+    const p = DNA_PROFILES[d];
+    return `
+      <div class="dna-profile-card">
+        <div class="profile-header profile-header-${d}">
+          <div class="profile-header-letter">${d}</div>
+          <div class="profile-header-text">
+            <div class="profile-header-name">${p.name}</div>
+            <div class="profile-header-th">${p.nameTh.split('—')[0].trim()}</div>
+          </div>
+        </div>
+        <div class="profile-body">
+          <p style="font-size:14px;line-height:1.7;color:var(--dgray);margin-bottom:14px;">${p.desc}</p>
+          ${renderProfileBody(p)}
+        </div>
+      </div>
+    `;
+  }).join("");
+  return note + cards;
+}
+
+// ─── Render: Profile Body (shared) ───────────────
+function renderProfileBody(p) {
+  return `
+    <hr class="divider" />
+    <div class="detail-section">
+      <h4>จุดแข็ง</h4>
+      <ul class="trait-list">
+        ${p.traits.map(t => `<li><div class="trait-dot"></div>${t}</li>`).join("")}
+      </ul>
+    </div>
+    <hr class="divider" />
+    <div class="detail-section">
+      <h4>ตำแหน่งงานที่เหมาะสม</h4>
+      <div class="role-tags">
+        ${p.roles.map(r => `<span class="role-tag">${r}</span>`).join("")}
+      </div>
+      <p style="font-size:12px;color:#888;margin-top:10px;">สภาพแวดล้อมที่เหมาะ: ${p.environment}</p>
+    </div>
+    <hr class="divider" />
+    <div class="detail-section">
+      <h4>จุดบอดที่ต้องระวัง</h4>
+      <ul class="blind-list">
+        ${p.blindspots.map(b => `<li><div class="blind-dot"></div>${b}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+//  SILENT SAVE TO GOOGLE SHEETS (ไม่แสดง UI)
+// ═══════════════════════════════════════════════════
+async function silentSaveToSheets() {
+  if (!SHEETS_URL) return;
+  const payload = {
+    timestamp: userData.timestamp,
+    name: userData.name,
+    role: userData.role || "",
+    company: userData.company || "",
+    answers: userData.answers,
+    score_B: userData.scores.B,
+    score_O: userData.scores.O,
+    score_S: userData.scores.S,
+    score_I: userData.scores.I,
+    dominant: userData.dominant
+  };
+  try {
+    await fetch(SHEETS_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  } catch (_) { /* silent fail */ }
+}
+
+// ═══════════════════════════════════════════════════
+//  SAVE AS PDF (ใช้ browser print dialog)
+// ═══════════════════════════════════════════════════
+function saveAsPDF() {
+  window.print();
+}
+
+// ═══════════════════════════════════════════════════
+//  SAVE AS IMAGE (ใช้ html2canvas)
+// ═══════════════════════════════════════════════════
+async function saveAsImage() {
+  const target = document.getElementById("sec-result");
+  const btn = event.currentTarget;
+  btn.textContent = "⏳ กำลังสร้างรูปภาพ...";
+  btn.disabled = true;
+
+  try {
+    const canvas = await html2canvas(target, {
+      backgroundColor: "#f0f2f5",
+      scale: 2,
+      useCORS: true,
+      ignoreElements: el => el.classList.contains("save-btn-group") || el.id === "btn-reset"
+    });
+    const link = document.createElement("a");
+    const name = (userData.name || "result").replace(/\s+/g, "_");
+    link.download = `BOSI_DNA_${userData.dominant}_${name}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (err) {
+    alert("ไม่สามารถสร้างรูปภาพได้: " + err.message);
+  } finally {
+    btn.textContent = "🖼 บันทึกเป็นรูปภาพ";
+    btn.disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function resetQuiz() {
+  answers = new Array(10).fill(null);
+  userData = {};
+  document.getElementById("input-name").value = "";
+  document.getElementById("input-role").value = "";
+  document.getElementById("input-company").value = "";
+  showSection("sec-intro");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+
+<!--
+═══════════════════════════════════════════════════════════════
+  GOOGLE APPS SCRIPT — วาง code นี้ใน Extensions > Apps Script
+  แล้ว Deploy เป็น Web App (Execute as: Me, Access: Anyone)
+  คัดลอก URL มาใส่ใน SHEETS_URL ด้านบน
+═══════════════════════════════════════════════════════════════
+
+function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // สร้าง Header ถ้ายังไม่มี
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow([
+      "Timestamp", "ชื่อ", "ตำแหน่ง", "บริษัท",
+      "คำตอบ (ก-ง)", "B", "O", "S", "I", "DNA หลัก"
+    ]);
+  }
+
+  const data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    data.timestamp,
+    data.name,
+    data.role,
+    data.company,
+    data.answers,
+    data.score_B,
+    data.score_O,
+    data.score_S,
+    data.score_I,
+    data.dominant
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "ok" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+-->
+
+</body>
+</html>
